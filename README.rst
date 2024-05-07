@@ -23,18 +23,6 @@ Authors
 
 * Sebastien J. Weber  (sebastien.weber@cnrs.fr)
 
-.. if needed use this field
-
-    Contributors
-    ============
-
-    * First Contributor
-    * Other Contributors
-
-.. if needed use this field
-
-  Depending on the plugin type, delete/complete the fields below
-
 
 Instruments
 ===========

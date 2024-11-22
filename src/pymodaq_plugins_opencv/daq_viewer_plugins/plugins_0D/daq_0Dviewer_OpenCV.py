@@ -1,14 +1,11 @@
-from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus
 import numpy as np
+import cv2
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
+from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus
 
-
-class PythonWrapperOfYourInstrument:
-    #  TODO Replace this fake class with the import of the real python wrapper of your instrument
-    pass
 
 # TODO:
 # (1) change the name of the following class to DAQ_0DViewer_TheNameOfYourChoice
@@ -16,7 +13,7 @@ class PythonWrapperOfYourInstrument:
 #     for the class name and the file name.)
 # (3) this file should then be put into the right folder, namely IN THE FOLDER OF THE PLUGIN YOU ARE DEVELOPING:
 #     pymodaq_plugins_my_plugin/daq_viewer_plugins/plugins_0D
-class DAQ_0DViewer_Template(DAQ_Viewer_base):
+class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
     
     This object inherits all functionalities to communicate with PyMoDAQ’s DAQ_Viewer module through inheritance via
@@ -39,16 +36,19 @@ class DAQ_0DViewer_Template(DAQ_Viewer_base):
 
     """
     params = comon_parameters+[
+        {'title': 'Camera index', 'name': 'camera_index', 'type': 'int', 'value': 0, 'default': 0, 'min': 0},
+        {'title': 'Color', 'name': 'color', 'type': 'list', 'value': 'grey', 'limits':['grey', 'RGB']}, 
+        {'title': 'Open Settings', 'name': 'open_settings', 'type': 'bool', 'value': False},
+        {'title': 'Camera Settings', 'name': 'cam_settings', 'type': 'group', 'children': [
         ## TODO for your custom plugin: elements to be added here as dicts in order to control your custom stage
-        ]
+        ]},]
 
     def ini_attributes(self):
         #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
         #  autocompletion
-        self.controller: PythonWrapperOfYourInstrument = None
-
-        #TODO declare here attributes you want/need to init with a default value
-        pass
+        self.controller: Focus = None #TODO: Why cv2.VideoCapture? Shouldn't it be Focus?
+        self.x_axis = None
+        self.y_axis = None
 
     def commit_settings(self, param: Parameter):
         """Apply the consequences of a change of value in the detector settings
@@ -59,7 +59,9 @@ class DAQ_0DViewer_Template(DAQ_Viewer_base):
             A given parameter (within detector_settings) whose value has been changed by the user
         """
         ## TODO for your custom plugin
-        if param.name() == "a_parameter_you've_added_in_self.params":
+        if param.name() == "open_settings":
+           if param.value():
+               self.controller.set(Focus['CV_CAP_' + param.name()].value, param.value())
            self.controller.your_method_to_apply_this_param_change()  # when writing your own plugin replace this line
 #        elif ...
         ##
@@ -115,10 +117,7 @@ class DAQ_0DViewer_Template(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        ## TODO for your custom plugin: you should choose EITHER the synchrone or the asynchrone version following
-
-        # synchrone version (blocking function)
-        raise NotImplemented  # when writing your own plugin remove this line
+        ## TODO for your custom plugin
         data_tot = self.controller.your_method_to_start_a_grab_snap()
         self.dte_signal.emit(DataToExport(name='myplugin',
                                           data=[DataFromPlugins(name='Mock1', data=data_tot,

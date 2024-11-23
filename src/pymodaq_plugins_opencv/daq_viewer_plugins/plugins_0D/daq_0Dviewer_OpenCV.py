@@ -1,10 +1,14 @@
 import numpy as np
 import cv2
+import logging
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
 from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 
 # TODO:
@@ -62,7 +66,6 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         if param.name() == "open_settings":
            if param.value():
                self.controller.set(Focus['CV_CAP_' + param.name()].value, param.value())
-           self.controller.your_method_to_apply_this_param_change()  # when writing your own plugin replace this line
 #        elif ...
         ##
 
@@ -117,17 +120,38 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        ## TODO for your custom plugin
-        data_tot = self.controller.your_method_to_start_a_grab_snap()
+        focus, frame = self.controller.read()
+
+        if focus: 
+            if self.settings['color'] == 'grey':
+                camera = cv2.GaussianBlur(frame, (3, 3), 0)
+                camera = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                camera = self.laplacian(camera)
+                camera[0] = camera[0].astype(np.float32)
+            else: 
+                if len(frame.shape) == 2: 
+                    camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
+                else:
+                    camera = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
+        else: 
+            camera = [np.zero((len(self.y_axis), len(self.x_axis)))]
+            logger.warning('No frame grabbed')
+    
         self.dte_signal.emit(DataToExport(name='myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=data_tot,
-                                                                dim='Data0D', labels=['dat0', 'data1'])]))
+                                          data=[DataFromPlugins(name='OpenCV', data=camera,
+                                                                dim='Data0D', labels=['focus', 'frame'])]))
         #########################################################
 
-        # asynchrone version (non-blocking function with callback)
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_start_a_grab_snap(self.callback)  # when writing your own plugin replace this line
-        #########################################################
+        # # asynchrone version (non-blocking function with callback)
+        # raise NotImplemented  # when writing your own plugin remove this line
+        # self.controller.your_method_to_start_a_grab_snap(self.callback)  # when writing your own plugin replace this line
+        # #########################################################
+    def laplacian(self, frame): 
+        laplacian = cv2.Laplacian(frame, cv2.CV_64F)
+        laplacian = cv2.convertScaleAbs(laplacian)
+        return laplacian
+   
+    
 
 
     def callback(self):

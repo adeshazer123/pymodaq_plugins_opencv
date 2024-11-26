@@ -44,13 +44,10 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         {'title': 'Color', 'name': 'color', 'type': 'list', 'value': 'grey', 'limits':['grey', 'RGB']}, 
         {'title': 'Open Settings', 'name': 'open_settings', 'type': 'bool', 'value': False},
         {'title': 'Camera Settings', 'name': 'cam_settings', 'type': 'group', 'children': [
-        ## TODO for your custom plugin: elements to be added here as dicts in order to control your custom stage
         ]},]
 
     def ini_attributes(self):
-        #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
-        #  autocompletion
-        self.controller: Focus = None #TODO: Why cv2.VideoCapture? Shouldn't it be Focus?
+        self.controller: cv2.VideoCapture = None 
         self.x_axis = None
         self.y_axis = None
 
@@ -65,9 +62,13 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         ## TODO for your custom plugin
         if param.name() == "open_settings":
            if param.value():
-               self.controller.set(Focus['CV_CAP_' + param.name()].value, param.value())
-#        elif ...
-        ##
+               self.controller.set(Focus['CV_CAP_PROP_SETTINGS'].value, 1)
+        elif param.name() == 'color':
+             pass 
+        else:
+            self.controller.set(Focus['CV_CAP_' + param.name()].value, param.value())
+            val = self.controller.get(Focus['CV_CAP_' + param.name()].value)
+            param.setValue(val) 
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -85,29 +86,36 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
             False if initialization failed otherwise True
         """
 
-        raise NotImplemented  # TODO when writing your own plugin remove this line and modify the one below
         self.ini_detector_init(slave_controller=controller)
 
         if self.is_master:
-            self.controller = PythonWrapperOfYourInstrument()  #instantiate you driver with whatever arguments are needed
-            self.controller.open_communication() # call eventual methods
+            self.controller = cv2.VideoCapture(self.settings['camera_index'], cv2.CAP_DSHOW)
+            self.x_axis = self.get_xaxis()
+            self.y_axis = self.get_yaxis()
+            self.get_active_properties()
+            
 
-        # TODO for your custom plugin (optional) initialize viewers panel with the future type of data
         self.dte_signal_temp.emit(DataToExport(name='myplugin',
                                                data=[DataFromPlugins(name='Mock1',
                                                                     data=[np.array([0]), np.array([0])],
                                                                     dim='Data0D',
-                                                                    labels=['Mock1', 'label2'])]))
+                                                                    labels=[self.x_axis, self.y_axis])]))
 
-        info = "Whatever info you want to log"
-        initialized = self.controller.a_method_or_atttribute_to_check_if_init()  # TODO
+        info = "OpenCV 0D viewer initialized"
+        initialized = True
         return info, initialized
-
+    
+    def get_xaxis(self):
+        xaxis = int(self.controller.get(cv2.CAP_PROP_FRAME_WIDTH))
+        return xaxis
+    
+    def get_yaxis(self):
+        yaxis = int(self.controller.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        return yaxis
+    
     def close(self):
         """Terminate the communication protocol"""
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        #  self.controller.your_method_to_terminate_the_communication()  # when writing your own plugin replace this line
+        self.controller.release() 
 
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
@@ -120,16 +128,19 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        focus, frame = self.controller.read()
+        if not self.controller.isOpened():
+            self.controller.open(self.settings['camera_index'])
+            
+        ret, frame = self.controller.read()
 
-        if focus: 
+        if ret: 
             if self.settings['color'] == 'grey':
                 camera = cv2.GaussianBlur(frame, (3, 3), 0)
                 camera = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 camera = self.laplacian(camera)
                 camera[0] = camera[0].astype(np.float32)
             else: 
-                if len(frame.shape) == 2: 
+                if len(frame.shape) == 3: 
                     camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
                 else:
                     camera = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
@@ -139,21 +150,16 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
     
         self.dte_signal.emit(DataToExport(name='myplugin',
                                           data=[DataFromPlugins(name='OpenCV', data=camera,
-                                                                dim='Data0D', labels=['focus', 'frame'])]))
-        #########################################################
-
-        # # asynchrone version (non-blocking function with callback)
-        # raise NotImplemented  # when writing your own plugin remove this line
-        # self.controller.your_method_to_start_a_grab_snap(self.callback)  # when writing your own plugin replace this line
-        # #########################################################
-    def laplacian(self, frame): 
+                                                                dim='Data0D', labels=['focus'])]))
+        
+    
+    def calculate_score(self, frame): 
+        """Calculate the focus score of the frame"""
         laplacian = cv2.Laplacian(frame, cv2.CV_64F)
-        laplacian = cv2.convertScaleAbs(laplacian)
-        return laplacian
+        focus_score: float = laplacian.var()
+        return focus_score
    
     
-
-
     def callback(self):
         """optional asynchrone method called when the detector has finished its acquisition of data"""
         data_tot = self.controller.your_method_to_get_data_from_buffer()
@@ -163,12 +169,7 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_stop_acquisition()  # when writing your own plugin replace this line
-        self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
-        ##############################
-        return ''
+        pass
 
 
 if __name__ == '__main__':

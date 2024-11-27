@@ -5,10 +5,10 @@ from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
-from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus
+from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus  # DK - correct the file name
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.WARNING) # DK - Delete. We should not change the default setting.
 
 
 # TODO:
@@ -44,6 +44,8 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         {'title': 'Color', 'name': 'color', 'type': 'list', 'value': 'grey', 'limits':['grey', 'RGB']}, 
         {'title': 'Open Settings', 'name': 'open_settings', 'type': 'bool', 'value': False},
         {'title': 'Camera Settings', 'name': 'cam_settings', 'type': 'group', 'children': [
+            #     {'title': 'Autoexposure:', 'name': 'autoexposure', 'type': 'bool', 'value': False}, # DK - keep the template as it is
+            #     {'title': 'Exposure:', 'name': 'exposure', 'type': 'int', 'value': 0},
         ]},]
 
     def ini_attributes(self):
@@ -92,11 +94,11 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
             self.controller = cv2.VideoCapture(self.settings['camera_index'], cv2.CAP_DSHOW)
             self.x_axis = self.get_xaxis()
             self.y_axis = self.get_yaxis()
-            self.get_active_properties()
+            self.get_active_properties() # DK - address AttributeError: 'DAQ_0DViewer_OpenCV' object has no attribute 'get_active_properties'
             
 
         self.dte_signal_temp.emit(DataToExport(name='myplugin',
-                                               data=[DataFromPlugins(name='Mock1',
+                                               data=[DataFromPlugins(name='Mock1', # rename Mock1
                                                                     data=[np.array([0]), np.array([0])],
                                                                     dim='Data0D',
                                                                     labels=[self.x_axis, self.y_axis])]))
@@ -148,7 +150,7 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
             camera = [np.zero((len(self.y_axis), len(self.x_axis)))]
             logger.warning('No frame grabbed')
     
-        self.dte_signal.emit(DataToExport(name='myplugin',
+        self.dte_signal.emit(DataToExport(name='myplugin', # rename Mock1. This is consistent with attributes in ini_detector
                                           data=[DataFromPlugins(name='OpenCV', data=camera,
                                                                 dim='Data0D', labels=['focus'])]))
         
@@ -160,9 +162,9 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         return focus_score
    
     
-    def callback(self):
+    def callback(self): # DK - do we need this? Either synchronous and synchronous works because the exposure time of this camera is short.
         """optional asynchrone method called when the detector has finished its acquisition of data"""
-        data_tot = self.controller.your_method_to_get_data_from_buffer()
+        data_tot = self.controller.your_method_to_get_data_from_buffer() # DK - edit this placeholder
         self.dte_signal.emit(DataToExport(name='myplugin',
                                           data=[DataFromPlugins(name='Mock1', data=data_tot,
                                                                 dim='Data0D', labels=['dat0', 'data1'])]))

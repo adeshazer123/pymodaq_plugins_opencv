@@ -165,7 +165,7 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
             camera = [np.zero((len(self.y_axis), len(self.x_axis)))]
             logger.warning('No frame grabbed')
     
-        self.dte_signal.emit(DataToExport(name='myplugin', # rename Mock1. This is consistent with attributes in ini_detector
+        self.dte_signal.emit(DataToExport(name='FocusFinder', 
                                           data=[DataFromPlugins(name='OpenCV', data=camera,
                                                                 dim='Data0D', labels=['focus'])]))
         

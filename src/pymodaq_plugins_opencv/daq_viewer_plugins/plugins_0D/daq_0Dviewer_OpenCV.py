@@ -177,12 +177,12 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         return focus_score
    
     
-    def callback(self): # DK - do we need this? Either synchronous and synchronous works because the exposure time of this camera is short.
-        """optional asynchrone method called when the detector has finished its acquisition of data"""
-        data_tot = self.controller.your_method_to_get_data_from_buffer() # DK - edit this placeholder
-        self.dte_signal.emit(DataToExport(name='myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=data_tot,
-                                                                dim='Data0D', labels=['dat0', 'data1'])]))
+    # def callback(self): # DK - do we need this? Either synchronous and synchronous works because the exposure time of this camera is short.
+    #     """optional asynchrone method called when the detector has finished its acquisition of data"""
+    #     data_tot = self.controller.your_method_to_get_data_from_buffer() # DK - edit this placeholder
+    #     self.dte_signal.emit(DataToExport(name='myplugin',
+    #                                       data=[DataFromPlugins(name='Mock1', data=data_tot,
+    #                                                             dim='Data0D', labels=['dat0', 'data1'])]))
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""

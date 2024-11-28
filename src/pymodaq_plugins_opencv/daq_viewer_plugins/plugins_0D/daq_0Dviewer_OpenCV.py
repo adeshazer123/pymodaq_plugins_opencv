@@ -61,7 +61,6 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-        ## TODO for your custom plugin
         if param.name() == "open_settings":
            if param.value():
                self.controller.set(Focus['CV_CAP_PROP_SETTINGS'].value, 1)
@@ -71,6 +70,24 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
             self.controller.set(Focus['CV_CAP_' + param.name()].value, param.value())
             val = self.controller.get(Focus['CV_CAP_' + param.name()].value)
             param.setValue(val) 
+    
+    def get_active_properties(self):
+        props = Focus.names()
+        self.additional_params = []
+        for prop in props:
+            try:
+                ret = int(self.controller.get(Focus[prop].value))
+                if ret != -1:
+                    try:
+                        ret_set = self.controller.set(Focus[prop].value, ret)
+                    except:
+                        ret_set = False
+                    self.additional_params.append(
+                        {'title': prop[7:], 'name': prop[7:], 'type': 'float', 'value': ret, 'readonly': not ret_set})
+            except:
+                pass
+        self.settings.child('cam_settings').addChildren(self.additional_params)
+        pass
 
     def ini_detector(self, controller=None):
         """Detector communication initialization

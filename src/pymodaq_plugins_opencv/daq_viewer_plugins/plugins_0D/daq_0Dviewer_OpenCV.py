@@ -9,14 +9,9 @@ from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus  # DK
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING) # DK - Delete. We should not change the default setting.
+                                # AD -> I disagree, the default setting is INFO, we should change it to WARNING
+                                #TODO: Test the logger level in the warning level
 
-
-# TODO:
-# (1) change the name of the following class to DAQ_0DViewer_TheNameOfYourChoice
-# (2) change the name of this file to daq_0Dviewer_TheNameOfYourChoice ("TheNameOfYourChoice" should be the SAME
-#     for the class name and the file name.)
-# (3) this file should then be put into the right folder, namely IN THE FOLDER OF THE PLUGIN YOU ARE DEVELOPING:
-#     pymodaq_plugins_my_plugin/daq_viewer_plugins/plugins_0D
 class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
     

@@ -44,8 +44,6 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         {'title': 'Color', 'name': 'color', 'type': 'list', 'value': 'grey', 'limits':['grey', 'RGB']}, 
         {'title': 'Open Settings', 'name': 'open_settings', 'type': 'bool', 'value': False},
         {'title': 'Camera Settings', 'name': 'cam_settings', 'type': 'group', 'children': [
-            #     {'title': 'Autoexposure:', 'name': 'autoexposure', 'type': 'bool', 'value': False}, # DK - keep the template as it is
-            #     {'title': 'Exposure:', 'name': 'exposure', 'type': 'int', 'value': 0},
         ]},]
 
     def ini_attributes(self):
@@ -111,11 +109,11 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
             self.controller = cv2.VideoCapture(self.settings['camera_index'], cv2.CAP_DSHOW)
             self.x_axis = self.get_xaxis()
             self.y_axis = self.get_yaxis()
-            self.get_active_properties() # DK - address AttributeError: 'DAQ_0DViewer_OpenCV' object has no attribute 'get_active_properties'
+            self.get_active_properties()
             
 
         self.dte_signal_temp.emit(DataToExport(name='myplugin',
-                                               data=[DataFromPlugins(name='Mock1', # rename Mock1
+                                               data=[DataFromPlugins(name='FocusFinder', # rename Mock1
                                                                     data=[np.array([0]), np.array([0])],
                                                                     dim='Data0D',
                                                                     labels=[self.x_axis, self.y_axis])]))

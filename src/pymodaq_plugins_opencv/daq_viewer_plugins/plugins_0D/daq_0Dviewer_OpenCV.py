@@ -148,7 +148,8 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         if ret: 
             if self.settings['color'] == 'grey':
                 camera = cv2.GaussianBlur(frame, (3, 3), 0)
-                camera = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                if len(frame.shape) ==3:
+                    camera = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 camera = self.laplacian(camera)
                 camera[0] = camera[0].astype(np.float32)
             else: 

@@ -174,7 +174,7 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
                 else:
                     camera = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
         else: 
-            camera = [np.zero((len(self.y_axis), len(self.x_axis)))]
+            camera = [np.zeros((len(self.y_axis), len(self.x_axis)))]
             logger.warning('No frame grabbed')
     
         self.dte_signal.emit(DataToExport(name='FocusFinder', 

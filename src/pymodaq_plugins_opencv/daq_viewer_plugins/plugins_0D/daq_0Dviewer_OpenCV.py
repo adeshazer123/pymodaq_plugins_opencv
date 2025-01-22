@@ -186,3 +186,35 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
 
 if __name__ == '__main__':
     main(__file__)
+
+    """2025-01-22 22:44:46,579 - pymodaq - INFO - ************************
+2025-01-22 22:44:46,580 - pymodaq - INFO - Registering plotters...
+2025-01-22 22:44:46,586 - pymodaq.plotter - WARNING - No module named 'matplotlib'
+2025-01-22 22:44:46,601 - pymodaq - INFO - Done
+2025-01-22 22:44:46,601 - pymodaq - INFO - ************************
+2025-01-22 22:44:47,278 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Initializing DAQ_Viewer: Testing
+2025-01-22 22:45:00,803 - pymodaq.pymodaq.daq_viewer.Testing - INFO - detector initialized: True
+2025-01-22 22:45:05,372 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Testing: Continuous Grab
+2025-01-22 22:45:09,528 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Testing: Stop Grab
+2025-01-22 22:45:09,549 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Stoping grab
+2025-01-22 22:45:20,813 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Testing: Continuous Grab
+2025-01-22 22:45:20,817 - pymodaq.pymodaq.daq_viewer.Testing.detector - ERROR - OpenCV(4.10.0) d:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\color.simd_helpers.hpp:92: error: (-2:Unspecified error) in function '__cdecl cv::impl::`anonymous-namespace'::CvtHelper<struct cv::impl::`anonymous namespace'::Set<3,4,-1>,struct cv::impl::A0x46dff480::Set<1,-1,-1>,struct cv::impl::A0x46dff480::Set<0,2,5>,4>::CvtHelper(const class cv::_InputArray &,const class cv::_OutputArray &,int)'
+> Invalid number of channels in input image:
+>     'VScn::contains(scn)'
+> where
+>     'scn' is 1
+Traceback (most recent call last):
+  File "C:\Users\2dqm\miniconda3\envs\pymodaq\Lib\site-packages\pymodaq\control_modules\daq_viewer.py", line 1384, in grab_data
+    self.detector.grab_data(Naverage, live=live, **kwargs)
+  File "c:\users\2dqm\pycharmprojects\pymodaq_plugins_opencv\src\pymodaq_plugins_opencv\daq_viewer_plugins\plugins_0D\daq_0Dviewer_OpenCV.py", line 158, in grab_data
+    camera = cv2.cvtColor(slice, cv2.COLOR_BGR2GRAY)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.10.0) d:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\color.simd_helpers.hpp:92: error: (-2:Unspecified error) in function '__cdecl cv::impl::`anonymous-namespace'::CvtHelper<struct cv::impl::`anonymous namespace'::Set<3,4,-1>,struct cv::impl::A0x46dff480::Set<1,-1,-1>,struct cv::impl::A0x46dff480::Set<0,2,5>,4>::CvtHelper(const class cv::_InputArray &,const class cv::_OutputArray &,int)'
+> Invalid number of channels in input image:
+>     'VScn::contains(scn)'
+> where
+>     'scn' is 1
+ 
+2025-01-22 22:45:23,168 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Testing: Stop Grab
+2025-01-22 22:45:23,174 - pymodaq.pymodaq.daq_viewer.Testing - INFO - Stoping grab
+ """

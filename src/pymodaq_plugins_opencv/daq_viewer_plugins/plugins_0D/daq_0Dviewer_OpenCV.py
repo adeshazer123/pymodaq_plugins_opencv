@@ -149,18 +149,24 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         if ret: 
             if self.settings['color'] == 'grey':
                 camera = cv2.GaussianBlur(frame, (3, 3), 0)
-                camera = self.laplacian(camera)
+                
                 camera[0] = camera[0].astype(np.float32)
             else: 
-                if len(frame.shape) == 3: # DK - wheb I choose RGB, an error raised
-                    camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
+                if len(frame.shape) == 3: # DK - when I choose RGB, an error raised
+                    for ind in range(frame.shape[2]):
+                        slice = frame[:,:,ind] 
+                        camera = cv2.cvtColor(slice, cv2.COLOR_BGR2GRAY)
+                        
+                    # camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
                                     #     camera = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 else:
                     camera = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
         else: 
             camera = [np.zeros((len(self.y_axis), len(self.x_axis)))]
             logger.warning('No frame grabbed')
-    
+
+        # camera = self.laplacian(camera)
+        camera = self.calculate_score(camera)
         self.dte_signal.emit(DataToExport(name='FocusFinder', 
                                           data=[DataFromPlugins(name='OpenCV', data=camera,
                                                                 dim='Data0D', labels=['focus'])]))

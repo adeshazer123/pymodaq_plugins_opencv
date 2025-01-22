@@ -5,10 +5,11 @@ from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
-from pymodaq_plugins_opencv.hardware.daq_opencv import OpenCVProp as Focus  # DK - correct the file name
+from pymodaq_plugins_opencv.hardware.opencv import OpenCVProp as Focus  # DK - correct the file name
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING) # DK - Delete. We should not change the default setting.
+# logger.setLevel(logging.WARNING)
+# DK - Delete. We should not change the default setting.
                                 # AD -> I disagree, the default setting is INFO, we should change it to WARNING
                                 #TODO: Test the logger level in the warning level
 
@@ -148,23 +149,28 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
         if ret: 
             if self.settings['color'] == 'grey':
                 camera = cv2.GaussianBlur(frame, (3, 3), 0)
-                camera = self.laplacian(camera)
+                
                 camera[0] = camera[0].astype(np.float32)
             else: 
-                if len(frame.shape) == 3: 
-                    camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
+                if len(frame.shape) == 3: # DK - when I choose RGB, an error raised
+                    for ind in range(frame.shape[2]):
+                        slice = frame[:,:,ind] 
+                        camera = cv2.cvtColor(slice, cv2.COLOR_BGR2GRAY)
+                        
+                    # camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
                                     #     camera = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 else:
                     camera = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
         else: 
-            camera = [np.zero((len(self.y_axis), len(self.x_axis)))]
+            camera = [np.zeros((len(self.y_axis), len(self.x_axis)))]
             logger.warning('No frame grabbed')
-    
+
+        # camera = self.laplacian(camera)
+        camera = self.calculate_score(camera)
         self.dte_signal.emit(DataToExport(name='FocusFinder', 
                                           data=[DataFromPlugins(name='OpenCV', data=camera,
                                                                 dim='Data0D', labels=['focus'])]))
-        
-    
+
     def calculate_score(self, frame): 
         """Calculate the focus score of the frame"""
         laplacian = cv2.Laplacian(frame, cv2.CV_64F)

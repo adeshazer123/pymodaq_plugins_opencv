@@ -154,22 +154,6 @@ class DAQ_0DViewer_OpenCV(DAQ_Viewer_base):
                 camera = camera.astype(np.float32)
             else: 
                 if len(frame.shape) == 3: # DK - wheb I choose RGB, an error raised
-                    """FIXME
-                    OpenCV(4.10.0) :-1: error: (-5:Bad argument) in function 'cvtColor'
-                    > Overload resolution failed:
-                    >  - cvtColor() missing required argument 'code' (pos 2)
-                    >  - cvtColor() missing required argument 'code' (pos 2)
-                    Traceback (most recent call last):
-                      File "C:\Users\DK-microscope\miniconda3\envs\pymodaq\Lib\site-packages\pymodaq\control_modules\daq_viewer.py", line 1384, in grab_data
-                        self.detector.grab_data(Naverage, live=live, **kwargs)
-                      File "c:\users\dk-microscope\my_pymodaq\pymodaq_plugins_opencv\src\pymodaq_plugins_opencv\daq_viewer_plugins\plugins_0D\daq_0Dviewer_OpenCV.py", line 157, in grab_data
-                        camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                    cv2.error: OpenCV(4.10.0) :-1: error: (-5:Bad argument) in function 'cvtColor'
-                    > Overload resolution failed:
-                    >  - cvtColor() missing required argument 'code' (pos 2)
-                    >  - cvtColor() missing required argument 'code' (pos 2)                    
-                    """
                     camera = cv2.cvtColor(frame[:,:,ind] for ind in range(frame.shape[2]))
                 else:
                     camera = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]

@@ -16,7 +16,7 @@ class DAQ_2DViewer_OpenCV(DAQ_Viewer_base):
     """
     params = comon_parameters + \
              [{'title': 'Camera index:', 'name': 'camera_index', 'type': 'int', 'value': 0, 'default': 0, 'min': 0},
-              {'title': 'Colors:', 'name': 'colors', 'type': 'list', 'value': 'grey', 'limits': ['grey', 'RGB']},
+              {'title': 'Colors:', 'name': 'colors', 'type': 'list', 'value': 'grey', 'limits': ['grey', 'RGB', 'BGR']},
               {'title': 'Open Settings:', 'name': 'open_settings', 'type': 'bool', 'value': False},
               {'title': 'Cam. Settings:', 'name': 'cam_settings', 'type': 'group', 'children': [
                  #     {'title': 'Autoexposure:', 'name': 'autoexposure', 'type': 'bool', 'value': False},
@@ -156,9 +156,16 @@ class DAQ_2DViewer_OpenCV(DAQ_Viewer_base):
             if self.settings['colors'] == 'grey':
                 data_cam = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
                 data_cam[0] = data_cam[0].astype(np.float32)
+
+            elif self.settings['colors'] == 'BGR': 
+                data_cam = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                data_cam = [data_cam[:, :, ind] for ind in range(data_cam.shape[2])]
+                #data_cam[0] = data_cam[0].astype(np.float32)
+
             else:
                 if len(frame.shape) == 3:
                     data_cam = [frame[:, :, ind] for ind in range(frame.shape[2])]
+                    
                 else:
                     data_cam = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)]
 
